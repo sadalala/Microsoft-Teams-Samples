@@ -68,24 +68,23 @@ class TeamsConversationBot(TeamsActivityHandler):
                 turn_context, turn_context.activity.from_property.id
             )
         except Exception as e:
-            if "MemberNotFoundInConversation" in e.args[0]:
-                await turn_context.send_activity("Member not found.")
-                return
-            else:
+            if "MemberNotFoundInConversation" not in e.args[0]:
                 raise
 
+            await turn_context.send_activity("Member not found.")
+            return
         card_path = os.path.join(os.getcwd(), ADAPTIVECARDTEMPLATE)
         with open(card_path, "rb") as in_file:
             template_json = json.load(in_file)
-        
+
         for t in template_json["body"]:
-            t["text"] = t["text"].replace("${userName}", member.name)        
+            t["text"] = t["text"].replace("${userName}", member.name)
         for e in template_json["msteams"]["entities"]:
             e["text"] = e["text"].replace("${userName}", member.name)
             e["mentioned"]["id"] = e["mentioned"]["id"].replace("${userUPN}", member.user_principal_name)
             e["mentioned"]["id"] = e["mentioned"]["id"].replace("${userAAD}", member.additional_properties["aadObjectId"])
             e["mentioned"]["name"] = e["mentioned"]["name"].replace("${userName}", member.name)
-        
+
         adaptive_card_attachment = Activity(
             attachments=[CardFactory.adaptive_card(template_json)]
         )

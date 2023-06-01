@@ -33,7 +33,7 @@ class SimpleGraphClient:
             ]
         }
         response = self.client.post(
-            self.api_endpoint(f"search/query"),
+            self.api_endpoint("search/query"),
             headers={"Content-Type": "application/json"},
             json=search_filter,
         )
